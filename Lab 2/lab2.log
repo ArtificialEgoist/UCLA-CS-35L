@@ -1,0 +1,72 @@
+The locale command did not have the correct output, so I used export LC_ALL='C' to fix it, then locale to verify the change.
+
+To copy the words file, I called:
+	cp /usr/share/dict/words words
+	sort words
+
+To get this assignment's HTML, then convert it to a text file, I used:
+	wget cs.ucla.edu/classes/spring12/cs35L/assign/assign2.html
+	cp assign2.html assign2.txt
+
+tr -c 'A-Za-z' '[\n*]' < assign2.txt
+This replaces all non-alpha characters (complements of alphas) to a new-line character.
+
+tr -cs 'A-Za-z' '[\n*]' < assign2.txt
+The s "squeezes repeating symbols" so that consecutive non-alphas are replaced with a single new-line character.
+
+tr -cs 'A-Za-z' '[\n*]' < assign2.txt | sort
+Output is the same as above but in sorted order (with uppercase first).
+
+tr -cs 'A-Za-z' '[\n*]' < assign2.txt | sort -u
+Output is the same as above but with only unique words (no duplicates).
+
+tr -cs 'A-Za-z' '[\n*]' < assign2.txt | sort -u | comm - words
+The list above is compared to the sorted words, and the union of both lists is returned (all items from both lists).
+
+tr -cs 'A-Za-z' '[\n*]' < assign2.txt | sort -u | comm -23 - words
+The above unique and sorted list is compared to the sorted words, and only words unique to this list are returned (all words in original words are suppressed).
+
+To obtain a copy of the "English to Hawaiian" page:
+	wget mauimapp.com/moolelo/hwnwdseng.htm
+
+To build the hwords file:
+	grep "<td>.*</td>" hwnwdseng.htm | sed "s/<[^>]*>//g" | sed "s/\`/'/g" | tr -cs '[:graph:]' '[\n*]' | tr ',' '[\n*]' | sort -u | grep -v "[^PpKk'MmNnWwLlHhAaEeIiOoUu]" > hwords
+
+Let's break it down:
+grep "<tr> <td>.*</td> <td>" hwnwdseng.htm
+	Find all lines in the HTML file with these HTML codes
+sed "s/<[^>]*>//g"
+	Globally replace (or delete, in this case) all the HTML tags
+sed "s/\`/'/g"
+	Globally replace all grave accents with apostrophes
+tr -cs '[:graph:]' '[\n*]'
+	Translate all spaces into new line characters
+tr ',' '[\n*]'
+	Translate all commas into new line characters
+sort -u
+	Sort the word list, removing duplicates
+grep -v "[^'AaEeIiOoUuHhLlWwNnMmKkPp]" > hwords
+	Get rid of all words that contain non-Hawaiian alpha characters (v is inverse of the listed characters), and the remaining words is saved to hwords
+
+To run the shell-script that I wrote (buildwords), we use:
+	buildwords < hwnwdseng.htm
+
+(Word counts below are including the empty line.)
+
+I saved the number of misspelled English words on this page:
+tr -cs 'A-Za-z' '[\n*]' < assign2.txt | sort -u | comm -23 - words > english.txt
+Then I ran the following to find that there were 199 misspelled English words:	
+tr -cs 'A-Za-z' '[\n*]' < assign2.txt | sort -u | comm -23 - words | wc -l
+
+I saved the number of misspelled Hawaiian words on this page:
+tr -cs 'A-Za-z' '[\n*]' < assign2.txt | sort -u | comm -23 - hwords > hawaiian.txt
+Then I ran the following to find that there were 437 misspelled Hawaiian words:
+tr -cs 'A-Za-z' '[\n*]' < assign2.txt | sort -u | comm -23 - hwords | wc -l
+
+To find words misspelled as English but not Hawaiian:
+comm -23 english.txt hawaiian.txt
+By using wc -l, we find that there are 5 words, including: kula, lau, etc.
+
+To find words misspelled as Hawaiian but not English:
+comm -23 hawaiian.txt english.txt
+By using wc -l, we find that there are 243 words, including: words, unique, yours, etc.

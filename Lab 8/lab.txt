@@ -1,0 +1,151 @@
+To start off this lab, I first set up the SEASnet environment for thttpd,
+using the commands specified in the lab specifications:
+	bash
+	export PATH=/usr/local_cs/linux/bin:$PATH
+	export LD_LIBRARY_PATH=/usr/local_cs/linux/lib:$LD_LIBRARY_PATH
+
+Then I grab a copy of the thttpd file from cs.ucla and extract it:
+wget http://cs.ucla.edu/classes/spring12/cs35L/assign/thttpd-2.25b.tar.gz
+	tar xvf thttpd-2.25b.tar.gz
+
+To finish setting it up, I use the provided patch, then configure and make:
+	patch -p0
+Instead of creating a patch file, I just copied the patch and used CTRL+D.
+	./configure && make
+Now the thttpd.c file has been patched and the program has been set up. 
+
+To actually test the program, we run thttpd in a port in between 12100 and
+12129 (which are ports reserved for my CS35L Session 1).
+Use ps aux | grep thttpd to check for other users and prevent port conflict.
+	ps aux | grep thttpd
+	./thttpd -p 12123
+
+We know that our web server is working, as it responds to our request:
+	wget http://localhost:12123
+	curl http://localhost:12123
+Using the command curl tells us: "Looks like you got it working. Congrats."
+
+And now to make our web server crash by sending in an overly-long request
+(of over 1024 or so gibberish characters):
+	curl http://localhost:12123/AAAAAAAAAAA..........AAAAAAAAAAAAAA
+I make sure to put in a very long sequence of A's. I inputted about 1100 Z
+characters into a separate window, then copied it over. We use curl because
+SEASnet won't allow us to send the request via a browser.
+
+Upon crashing the server, it gives us an Internal Error, notifying the user
+that it could not serve the requested URL. Success!
+
+GDB allows us to actually trace our thttpd program. In order to use it, I
+write down my PID (process ID) for thttpd, which is 30982 this time. So I 
+open gdb and attach it to thttpd:
+	(gdb) attach 30982
+Using a different PuTTY terminal (which has to be on the same numbered
+lnxsrv), I sent a curl command to the http://localhost:12123. It will wait
+until you tell gdb to continue (c). Upon doing that, the program crashes to
+some segmentation fault, which means we overloaded the buffers. Excellent!
+Then I ask gdb to give me a backtrace (bt), which is copied below.
+
+(gdb) bt
+#0  0x00000033fcccba7f in poll () from /lib64/libc.so.6
+#1  0x000000000040cf91 in fdwatch ()
+#2  0x00000000004049ac in main ()
+(gdb) c
+Continuing.
+
+Program received signal SIGSEGV, Segmentation fault.
+0x00000033fcc32abd in getenv () from /lib64/libc.so.6
+(gdb) bt
+#0  0x00000033fcc32abd in getenv () from /lib64/libc.so.6
+#1  0x00000033fcc8c977 in tzset_internal () from /lib64/libc.so.6
+#2  0x00000033fcc8d4b0 in tzset () from /lib64/libc.so.6
+#3  0x00000033fcc92184 in strftime_l () from /lib64/libc.so.6
+#4  0x00000033fccd0c71 in __vsyslog_chk () from /lib64/libc.so.6
+#5  0x00000033fccd1250 in syslog () from /lib64/libc.so.6
+#6  0x0000000000403cb2 in logstats ()
+#7  0x000000000040de35 in tmr_run ()
+#8  0x0000000000405006 in main ()
+
+We can see from the backtrace that lib64/libc.so.6 was involved in the
+buffer overflow crash.
+
+To build a remote exploit, we're going to have to utilize this buffer
+overflow attack that we just performed on our local host. However, since
+it's remote, we won't have direct access to send a segmentation-fault
+causing request. Therefore, we must input some kind of assembly code that
+will give us control of the server and run a program or script written by
+the attacker. The buffer input will be overloaded, and we must write over
+the return address to call our program. Our program would take advantage of
+nops so that it can crash the web server regardless of buffer size...much
+like in our CS33 lab!
+
+To obtain our copies of the assembly language code, I first remove thttpd.o,
+edit the Makefile so that a .s file is generated, then re-make thttpd.o. The
+commands work like this:
+	rm thttpd.o
+	vim Makefile (where we edit it to have CCOPT = -O2 -S)
+	make thttpd.o
+This gives us our regular thttpd.s, but we need thttpd-fno-stack-protector.s
+as well. I used distclean, then rebuilt an entire new thttpd-2.25b from the
+tar.gz so as to replenish Makefile and thttpd.o
+
+From there on, I repeated the process as before, but for in Makefile, I
+changed it to have CCOPT = -O2 -S -fno-stack-protector. All of this together
+gives us our thttpd-fno-stack-protector.s assembly code file. (Unfortunately
+the thttpd.s seems to be identical and act is if there is no stack protector
+either, so I used CCOPT = -O2 -S -fstack-protector" to force the option on.)
+Then examining the files shows that thttpd.s has 4634 lines, while
+thttpd-fno-stack-protector.s has 4623 lines. 
+	diff thttpd.s thttpd-fno-stack-protector.s > Diff.txt
+Diff.txt shows us the default thttpd.s actually makes more jumps and
+performs a bit more operations. The defualt thttpd.s should be more
+efficient due to its buffer-overflow preventive nature, while the
+fno-stack-protection would cause it to lose this upperhand. (However, if
+there is guaranteed to be no overflow, not having to check for it would
+ likely speed up efficiency as well.)
+
+We want to check machine language calls are made. So we use pipelining to
+pass the difference in the files into the grep command.
+	diff thttpd.s thttpd-fno-stack-protector.s | grep call
+<       call    __stack_chk_fail
+
+Here we see that thttpd.s does indeed try to call a check on the stack to
+determine if it has failed. This is a vital part of preventing buffer
+overflow.
+
+Now onto testing mudflap. Since the command line doesn't seem to work easily
+ for my SEASnet account (even with -m32 gcc, I get annoying errors), I 
+decided to give it a shot on Ubuntu. Following the specs in the prsentation,
+ I used the following commands to configure and make mudflap thttpd.
+CC=gcc CFLAGS='-fmudflap -fno-stack-protector' LDFLAGS=-lmudflap ./configure
+CC=gcc CFLAGS='-fmudflap -fno-stack-protector' LDFLAGS=-lmudflap make
+
+After that, I generated the assembly code file, while adding to the Makefile
+line: -S -fmudflap -fno-stack-protector
+
+I try using GDB again, but this time with mudflap. Repeating the same 
+process as before yields this backtrace:
+
+Program received signal SIGABRT, Aborted.
+0x00007f40d12ed3a5 in raise () from /lib/x86_64-linux-gnu/libc.so.6
+(gdb) bt
+#0  0x00007f40d12ed3a5 in raise () from /lib/x86_64-linux-gnu/libc.so.6
+#1  0x00007f40d12f0b0b in abort () from /lib/x86_64-linux-gnu/libc.so.6
+#2  0x00007f40d1326d63 in ?? () from /lib/x86_64-linux-gnu/libc.so.6
+#3  0x00007f40d13b14f7 in __fortify_fail ()
+   from /lib/x86_64-linux-gnu/libc.so.6
+#4  0x00007f40d13b0410 in __chk_fail () from /lib/x86_64-linux-gnu/libc.so.6
+#5  0x00007f40d13b08c2 in __read_chk () from /lib/x86_64-linux-gnu/libc.so.6
+#6  0x0000000000403e57 in main ()
+
+We can tell that this version of thttpd has more security against overflow.
+I also made a thttpd-ubuntu.s, the original assembly code file, but created 
+on Ubuntu to account for any OS differences. This will be used to test 
+mudflap vs non-mudflap assembly code.
+	diff thttpd-ubuntu.s thttpd-mudflap.s
+Even at a glance, we see that thttpd-mudflap.s has over 11,000 lines, while 
+thttpd-ubuntu.t has only a bit under 4000 lines. Using the same grep command
+ as before to find system calls, we notice that the mudflap version calls 
+mf_check and mf_register MANY times. In terms of speed, the original thttpd
+probably runs a bit more efficiently. But in terms of buffer overflow and
+other possible vulnerabilities, mudflap is much more efficient; the original
+file cannot even compare.

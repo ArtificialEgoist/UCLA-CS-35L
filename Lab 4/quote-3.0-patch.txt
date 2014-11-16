@@ -1,0 +1,234 @@
+diff --git a/NEWS b/NEWS
+index 5fe01b7..ef33aba 100644
+--- a/NEWS
++++ b/NEWS
+@@ -30,7 +30,7 @@ GNU diffutils NEWS                                    -*- outline -*-
+ 
+   New diff option --suppress-blank-empty.
+ 
+-  Bring back support for `diff -NUM', where NUM is a number,
++  Bring back support for 'diff -NUM', where NUM is a number,
+   even when conforming to POSIX 1003.1-2001.  This change reverts to
+   the behavior of GNU diff 2.7 and earlier.  This is a change only
+   when conforming to POSIX 1003.1-2001; there is no effect when
+@@ -66,7 +66,7 @@ User-visible changes in version 2.8.6:
+   that 'patch' creates to indicate nonexistent backups) are now
+   treated as nonexistent when they are in the 'backup' file position.
+ 
+-* If multiple SKIP values are given to cmp, e.g., `cmp -i 10 -i 20',
++* If multiple SKIP values are given to cmp, e.g., 'cmp -i 10 -i 20',
+   cmp now uses the maximal value instead of the last one.
+ 
+ * diff now omits the ".000000000" on hosts that do not support
+@@ -106,7 +106,7 @@ User-visible changes in version 2.8:
+ * cmp and diff now conform to POSIX 1003.1-2001 (IEEE Std 1003.1-2001)
+   if the underlying system conforms to POSIX and if the _POSIX2_VERSION
+   environment variable is set to 200112.  Conformance removes support
+-  for `diff -NUM', where NUM is a number.  Use -C NUM or -U NUM instead.
++  for 'diff -NUM', where NUM is a number.  Use -C NUM or -U NUM instead.
+ * cmp now supports trailing operands SKIP1 and SKIP2, like BSD cmp.
+ * cmp -i or --ignore-initial now accepts SKIP1:SKIP2 option value.
+ * New cmp option: -n or --bytes.
+@@ -140,13 +140,13 @@ User-visible changes in version 2.8:
+   category if possible, instead of using native byte comparison.
+ * Recursive diffs now detect and report directory loops.
+ * Diff printf specs can now use the "0" and "'" flags.
+-* The new sdiff interactive command `ed' precedes each version with a header.
++* The new sdiff interactive command 'ed' precedes each version with a header.
+ * On 64-bit hosts, files larger than 2 GB can be compared.
+ * Some internationalization support has been added, but multibyte locales
+   are still not completely supported yet.
+ * Some diagnostics have been reworded slightly for consistency.
+-  Also, `diff -D FOO' now outputs `/* ! FOO */' instead of `/* not FOO */'.
+-* The `patch' part of the manual now describes `patch' version 2.5.4.
++  Also, 'diff -D FOO' now outputs '/* ! FOO */' instead of '/* not FOO */'.
++* The 'patch' part of the manual now describes 'patch' version 2.5.4.
+ * Man pages are now distributed and installed.
+ * There is support for DJGPP; see the 'ms' subdirectory and the files
+   m4/dos.m4 and */setmode.*.
+@@ -184,7 +184,7 @@ User-visible changes in version 2.4:
+       A printf spec followed by one of the following letters
+       causes the integer corresponding to that letter to be
+       printed according to the printf specification.
+-      E.g. `%5df' prints the number of the first line in the
++      E.g. '%5df' prints the number of the first line in the
+       group in the old file using the "%5d" format.
+ 	e: line number just before the group in old file; equals f - 1
+ 	f: first line number in group in the old file
+@@ -197,9 +197,9 @@ User-visible changes in version 2.4:
+       constant or a single letter interpreted as above.  T and E are
+       arbitrary format strings.  This format spec is equivalent to T if
+       A's value equals B's; otherwise it is equivalent to E.  For
+-      example, `%(N=0?no:%dN) line%(N=1?:s)' is equivalent to `no lines'
++      example, '%(N=0?no:%dN) line%(N=1?:s)' is equivalent to 'no lines'
+       if N (the number of lines in the group in the new file) is 0,
+-      to `1 line' if N is 1, and to `%dN lines' otherwise.
++      to '1 line' if N is 1, and to '%dN lines' otherwise.
+   %c'C'
+       where C is a single character, stands for the character C.  C may not
+       be a backslash or an apostrophe.  E.g. %c':' stands for a colon.
+@@ -209,7 +209,7 @@ User-visible changes in version 2.4:
+ * New diff line format specifications:
+   <PRINTF_SPEC>n
+       The line number, printed with <PRINTF_SPEC>.
+-      E.g. `%5dn' prints the line number with a "%5d" format.
++      E.g. '%5dn' prints the line number with a "%5d" format.
+   %c'C'
+   %c'\O'
+       The character C, or with octal code O, as above.
+@@ -221,14 +221,14 @@ User-visible changes in version 2.4:
+ * cmp and diff now conform to POSIX 1003.2-1992 (ISO/IEC 9945-2:1993)
+   if the underlying system conforms to POSIX:
+   - Some messages' wordings are changed in minor ways.
+-  - ``White space'' is now whatever C's `isspace' says it is.
+-  - When comparing directories, if `diff' finds a file that is not a regular
++  - "White space" is now whatever C's 'isspace' says it is.
++  - When comparing directories, if 'diff' finds a file that is not a regular
+     file or a directory, it reports the file's type instead of diffing it.
+     (As usual, it follows symbolic links first.)
+   - When signaled, sdiff exits with the signal's status, not with status 2.
+ * Now portable to hosts where int, long, pointer, etc. are not all the same
+   size.
+-* `cmp - -' now works like `diff - -'.
++* 'cmp - -' now works like 'diff - -'.
+ 
+ 
+ User-visible changes in version 2.3:
+diff --git a/README b/README
+index 061ec8a..5e0cf97 100644
+--- a/README
++++ b/README
+@@ -21,7 +21,7 @@ command "./configure --help" lists the supported --enable and --with
+ options.
+ 
+ If you have a problem with internationalization, you might be able to
+-work around it as described in ABOUT-NLS by invoking `./configure
++work around it as described in ABOUT-NLS by invoking './configure
+ --disable-nls'.  Many of the problems arise from dynamic linking
+ issues on non-GNU platforms (e.g. with the iconv library).  Such
+ problems tend to be shared by other GNU applications on these
+diff --git a/TODO b/TODO
+index f8dc34a..5132de8 100644
+--- a/TODO
++++ b/TODO
+@@ -6,4 +6,4 @@ http://www.pkix.net/~chuck/sdiff2.diff
+ Propagate stderr from subprocess so that diff3 does
+ a better job of explaining _why_:
+   > $ diff3 /bin/sh /bin/false /bin/mv
+-  > diff3: subsidiary program `diff' failed (exit status 2)
++  > diff3: subsidiary program 'diff' failed (exit status 2)
+diff --git a/ms/config.bat b/ms/config.bat
+index 7f057a0..2e7990d 100644
+--- a/ms/config.bat
++++ b/ms/config.bat
+@@ -134,7 +134,7 @@ if not errorlevel 1 mv -f %XSRC%/m4/Makefile.am.in %XSRC%/m4/Makefile.am-in
+ 
+ Rem This is required because DOS/Windows are case-insensitive
+ Rem to file names, and "make install" will do nothing if Make
+-Rem finds a file called `install'.
++Rem finds a file called 'install'.
+ if exist INSTALL ren INSTALL INSTALL.txt
+ 
+ Rem Set HOME to a sane default so configure stops complaining.
+diff --git a/ms/config.site b/ms/config.site
+index c89b062..a3b4cea 100644
+--- a/ms/config.site
++++ b/ms/config.site
+@@ -73,7 +73,7 @@ MAKEINFO=${MAKEINFO='makeinfo'}
+ # Force the test for 'ln -s' to report 'cp -pf'.
+ ac_cv_prog_LN_S='cp -pf'
+ 
+-# We have `fork', but it always fails.  Don't trust Autoconf to be
++# We have 'fork', but it always fails.  Don't trust Autoconf to be
+ # smart enough to detect that...
+ ac_cv_func_fork=no
+ ac_cv_func_vfork=no
+diff --git a/po/en.po b/po/en.po
+index 8e2f54d..05182be 100644
+--- a/po/en.po
++++ b/po/en.po
+@@ -4,23 +4,15 @@
+ #
+ msgid ""
+ msgstr ""
+-"Project-Id-Version: GNU diffutils 2.8.3\n"
++"Project-Id-Version: GNU diffutils 3.2\n"
+ "POT-Creation-Date: 2002-06-16 23:44-0700\n"
+-"PO-Revision-Date: 2002-06-17 00:01-0700\n"
+-"Last-Translator: Paul Eggert <eggert@twinsun.com>\n"
++"PO-Revision-Date: 2012-01-25 23:11-0700\n"
++"Last-Translator: Paul Eggert <eggert@cs.ucla.edu>\n"
+ "Language-Team: English <en@translate.freefriends.org>\n"
+ "MIME-Version: 1.0\n"
+ "Content-Type: text/plain; charset=ISO-8859-1\n"
+ "Content-Transfer-Encoding: 8bit\n"
+ 
+-# POSIX requires the word "illegal" in the POSIX locale, but the error
+-# is not really against the law.  This is not the POSIX locale, so fix
+-# the wording.
+-#: lib/getopt.c:800
+-#, c-format
+-msgid "%s: illegal option -- %c\n"
+-msgstr "%s: unrecognized option `-%c'\n"
+-
+ #. TRANSLATORS: Please translate "(C)" to the C-in-a-circle symbol
+ #. (U+00A9, COPYRIGHT SIGN) if possible, as this has some minor
+ #. technical advantages in international copyright law.  If the
+diff --git a/tests/help-version b/tests/help-version
+index 9d7d11d..03a9c78 100755
+--- a/tests/help-version
++++ b/tests/help-version
+@@ -75,7 +75,7 @@ test "x$v" = "x$VERSION" \
+ for lang in C fr da; do
+   for i in $built_programs; do
+ 
+-    # Skip `test'; it doesn't accept --help or --version.
++    # Skip 'test'; it doesn't accept --help or --version.
+     test $i = test && continue;
+ 
+     # false fails even when invoked with --help or --version.
+@@ -85,7 +85,7 @@ for lang in C fr da; do
+       continue
+     fi
+ 
+-    # The just-built install executable is always named `ginstall'.
++    # The just-built install executable is always named 'ginstall'.
+     test $i = install && i=ginstall
+ 
+     # Make sure they exit successfully, under normal conditions.
+@@ -96,7 +96,7 @@ for lang in C fr da; do
+     grep "$PACKAGE_BUGREPORT" h-$i > /dev/null || fail=1
+     rm -f h-$i
+ 
+-    # Make sure they fail upon `disk full' error.
++    # Make sure they fail upon 'disk full' error.
+     if test -w /dev/full && test -c /dev/full; then
+       env $i --help    >/dev/full 2>/dev/null && fail=1
+       env $i --version >/dev/full 2>/dev/null && fail=1
+@@ -108,7 +108,7 @@ for lang in C fr da; do
+         : # ok
+       else
+         fail=1
+-        echo "*** $i: bad exit status \`$status' (expected $expected)," 1>&2
++        echo "*** $i: bad exit status '$status' (expected $expected)," 1>&2
+         echo "  with --help or --version output redirected to /dev/full" 1>&2
+       fi
+     fi
+@@ -140,7 +140,7 @@ chown_setup () { args=--version; }
+ mkfifo_setup () { args=--version; }
+ mknod_setup () { args=--version; }
+ # Punt on uptime, since it fails (e.g., failing to get boot time)
+-# on some systems, and we shouldn't let that stop `make check'.
++# on some systems, and we shouldn't let that stop 'make check'.
+ uptime_setup () { args=--version; }
+ 
+ # Create a file in the current directory, not in $TMPDIR.
+@@ -188,7 +188,7 @@ basename_setup () { args=$tmp_in; }
+ dirname_setup () { args=$tmp_in; }
+ expr_setup () { args=foo; }
+ 
+-# Punt, in case GNU `id' hasn't been installed yet.
++# Punt, in case GNU 'id' hasn't been installed yet.
+ groups_setup () { args=--version; }
+ 
+ pathchk_setup () { args=$tmp_in; }

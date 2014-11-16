@@ -1,0 +1,38 @@
+Q1. Brady's patch excluded "case_long_iso_time_style:" since the for-loop
+containing the goto statement was removed as part of the patch as well. It
+does not have to be removed, but can be messy and confusing for those reading
+the code if left intact.
+
+Q2. Doing a search on the function dcgettext shows that it tries to "translate
+a text string into the user's native language." The parameter LC_TIME should
+help pinpoint the corresponding language. As a result, this new version of
+Coreutils should not pose a language problem as suggested. However, clean code
+should still be a standard, and if any syntax changes in the future, the code
+might have to change as well.
+
+Q3. Input: /usr/local/cs/bin/python randline.py -n 3 /dev/null
+Output: Traceback (most recent call last):
+	File "randline.py", line 70, in <module>
+	  main()
+	File "randline.py", line 64, in main
+	  sys.stdout.write(generator.chooseline())
+	File "randline.py", line 34, in chooseline
+	  return random.choice(self.lines)
+	File "/usr/local/cs/Python-2.7.3/lib/python2.7/random.py", line 274,
+in choice
+	  return seq[int(self.random() * len(seq))]  # raises IndexError if
+seq is empty
+	IndexError: list index out of range 
+
+/dev/null is an empty file that contains 0 lines and will never save the lines
+written to it. Thus when the script fetches a random line number, it gives an
+error. There is no line that can be found!
+
+Q4. Input: /usr/local/cs/bin/python3 randline.py -n 3 file
+Output: File "randline.py", line 65
+	  except IOError as (errno, strerror):
+			    ^
+	SyntaxError: invalid syntax
+
+It seems that Python 2 allows exception parameters to be iterable. However, this is not good coding practice. Hence, Python 3 fixed this vagueness by forcing the statement to be explicit. It should be:
+	except IOError as err:

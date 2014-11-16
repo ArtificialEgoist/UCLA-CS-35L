@@ -1,0 +1,73 @@
+The sort we are going to be using for this lab is found in the folder:
+	/usr/local/cs/bin/sort
+To use this sort rather than the default /usr/bin/sort, we'll have to run 
+some commands:
+	export PATH=$PATH:/usr/local/cs/bin
+	export PATH=/usr/local/cs/bin:$PATH
+Now that we have added the desired file path and placed it in the front, our
+sort will run as intended (allowing multiple threads to run).
+
+First, we'll need to generate our file of 200,000 random numbers using the 
+od and /dev/urandum commands. For example, to generate five random numbers:
+	od /dev/urandom -N 5
+We could then store that into a file. However, specifying -N 200,000 did
+not actually produce the correct amount of numbers I wanted. I noticed that 
+it seemed to cap at 12501 or so numbers. So instead, if I don't use the -N
+option, it will keep generating numbers in the file until I use CTRL+C to 
+force it to a stop. I wait a few seconds before stopping it to make sure 
+I've generated at least 200,000 numbers.
+	od /dev/urandom > numbers.txt
+	CTRL+C
+Then we need to get rid of the spaces and turn them into new lines.
+	tr -s ' ' '\n' < numbers.txt > labnumbers.txt
+Our output file, labnumbers.txt, is then going to have one number on each
+line. We still don't have exactly 200,000 random numbers, though, so I use
+some basic vim commands to get rid of every line below the top 200,000.
+	gg200000jdG
+gg brings us to the top of the file. 200000j brings us down 200000 lines. 
+And finally, dG deletes all lines until the end of the file. We're left with
+exactly 200,00 lines of single numbers, as needed.
+
+Now that we have our test data, we can use the time command on sorting it to
+determine whether parallel processing really helps. sort -g sorts the file 
+in numeric order, and time -p invokes the portability output of time. When
+using --parallel, the number that follows the equal sign is the number of
+threads we're going to allow for that sort operation.
+
+thant@lnxsrv01 ~]$ time -p sort -g < labnumbers.txt > /dev/null
+real 0.38
+user 0.69
+sys 0.00
+
+[nathant@lnxsrv01 ~]$ time -p sort -g --parallel=1 < labnumbers.txt >
+/dev/null
+real 1.19
+user 1.18
+sys 0.00
+
+[nathant@lnxsrv01 ~]$ time -p sort -g --parallel=2 < labnumbers.txt >
+/dev/null
+real 0.39
+user 0.70
+sys 0.00
+
+[nathant@lnxsrv01 ~]$ time -p sort -g --parallel=4 < labnumbers.txt >
+/dev/null
+real 0.37
+user 0.68
+sys 0.00
+
+[nathant@lnxsrv01 ~]$ time -p sort -g --parallel=8 < labnumbers.txt >
+/dev/null
+real 0.38
+user 0.69
+sys 0.01
+
+As we can see, using parallel processing with only one thread slows down
+efficiency quite a bit. There's no point to add in that code if we're not
+going to take advantage of multiple threads. As we increment our number of
+threads used, the real and user time both become much faster. At our eight
+cores, our system time has increased to 0.01, probably because we're calling
+system parallel thread functions. With that said, using more cores on larger
+files would be a better indicator of how parallel threading really affects
+efficiency.

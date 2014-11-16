@@ -1,0 +1,100 @@
+I tried running the command (ls -l /bin/bash), but the format was as it was supposed to be. However, I followed the steps for Brady's workaround in order to apply the patch anyway.
+
+First, to fetch the compressed Coreutils 7.6 file, I used:
+	wget ftp://ftp.gnu.org/gnu/coreutils/coreutils-7.6.tar.gz
+
+I extracted it using:
+	tar -xvf coreutils-7.6.tar.gz
+Then I made a temporary directory for installation, coreutilsInstall:
+	mkdir coreutilsInstall
+To configure the installation into the correct folder:
+	./configure --prefix=/u/cs/ugrad/nathant/coreutilsInstall
+(According to the class, /home/nathant/coreutilsInstall also works)
+
+After that, I used commands to compile it, then install it:
+	make
+	make install
+(SEASnet servers give an 'error 2' when trying to use make install due
+to some sort of restrictive permission)
+
+In order to reproduce the error, we have to use locale-gen to change the
+locales. The following commands update the locales that are available for use,
+then changes the locale to the en_US.UTF-8:
+	# locale-gen
+	LOCALE="en_US.UTF-8"
+
+To create the patch, we use cd src to get into the folder holding the ls file.
+We type "patch," followed by right-clicking the terminal to copy the code from
+the GNU archive. Then we press Enter and use CTRL+D twice to finish the patch.
+
+This command chooses ls.c and applies the patch to it:
+	patch -p3 < patch
+Then we go into the main coreutils-7.6 folder and set up the patch
+installation process:
+	make clean
+Lastly, we go into the coreutilsInstallation folder and use this command to
+verify that the patch worked:
+	./ls -l
+
+To finally test our patched ls, we try it on both a new and old file:
+	touch file1 (creates a new file)
+	touch -t 9904181200 file2 (creates an 'old' file at 4/18, 1999)
+Using ls -l on both of these files provides us with the correct Unix format,
+as expected.
+
+Here is the output from running the 'make' command in the source folder:
+
+make  all-recursive
+make[1]: Entering directory `/w/ugrad.04/cs/nathant/coreutils-7.6'
+Making all in lib
+make[2]: Entering directory `/w/ugrad.04/cs/nathant/coreutils-7.6/lib'
+make  all-recursive
+make[3]: Entering directory `/w/ugrad.04/cs/nathant/coreutils-7.6/lib'
+make[4]: Entering directory `/w/ugrad.04/cs/nathant/coreutils-7.6/lib'
+make[4]: Leaving directory `/w/ugrad.04/cs/nathant/coreutils-7.6/lib'
+make[3]: Leaving directory `/w/ugrad.04/cs/nathant/coreutils-7.6/lib'
+make[2]: Leaving directory `/w/ugrad.04/cs/nathant/coreutils-7.6/lib'
+Making all in src
+make[2]: Entering directory `/w/ugrad.04/cs/nathant/coreutils-7.6/src'
+make  all-am
+make[3]: Entering directory `/w/ugrad.04/cs/nathant/coreutils-7.6/src'
+make[3]: Nothing to be done for `all-am'.
+make[3]: Leaving directory `/w/ugrad.04/cs/nathant/coreutils-7.6/src'
+make[2]: Leaving directory `/w/ugrad.04/cs/nathant/coreutils-7.6/src'
+Making all in doc
+make[2]: Entering directory `/w/ugrad.04/cs/nathant/coreutils-7.6/doc'
+make[2]: Nothing to be done for `all'.
+make[2]: Leaving directory `/w/ugrad.04/cs/nathant/coreutils-7.6/doc'
+Making all in man
+make[2]: Entering directory `/w/ugrad.04/cs/nathant/coreutils-7.6/man'
+make[2]: Nothing to be done for `all'.
+make[2]: Leaving directory `/w/ugrad.04/cs/nathant/coreutils-7.6/man'
+Making all in po
+make[2]: Entering directory `/w/ugrad.04/cs/nathant/coreutils-7.6/po'
+make[2]: Nothing to be done for `all'.
+make[2]: Leaving directory `/w/ugrad.04/cs/nathant/coreutils-7.6/po'
+Making all in tests
+make[2]: Entering directory `/w/ugrad.04/cs/nathant/coreutils-7.6/tests'
+make[2]: Nothing to be done for `all'.
+make[2]: Leaving directory `/w/ugrad.04/cs/nathant/coreutils-7.6/tests'
+Making all in gnulib-tests
+make[2]: Entering directory
+`/w/ugrad.04/cs/nathant/coreutils-7.6/gnulib-tests'
+make  all-recursive
+make[3]: Entering directory
+`/w/ugrad.04/cs/nathant/coreutils-7.6/gnulib-tests'
+make[4]: Entering directory
+`/w/ugrad.04/cs/nathant/coreutils-7.6/gnulib-tests'
+make[4]: Nothing to be done for `all-am'.
+make[4]: Leaving directory `/w/ugrad.04/cs/nathant/coreutils-7.6/gnulib-tests'
+make[3]: Leaving directory `/w/ugrad.04/cs/nathant/coreutils-7.6/gnulib-tests'
+make[2]: Leaving directory `/w/ugrad.04/cs/nathant/coreutils-7.6/gnulib-tests'
+make[2]: Entering directory `/w/ugrad.04/cs/nathant/coreutils-7.6'
+make[2]: Nothing to be done for `all-am'.
+make[2]: Leaving directory `/w/ugrad.04/cs/nathant/coreutils-7.6'
+make[1]: Leaving directory `/w/ugrad.04/cs/nathant/coreutils-7.6'
+
+all-recursive is made in order to recursively check if more files need to be
+conpiled. The make command compiles every directory related to coreutils,
+including the lib and src folders (where the ls file is housed). Only source
+files are relevant and therefore compiled. 

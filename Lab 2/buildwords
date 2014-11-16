@@ -1,0 +1,6 @@
+#! /bin/bash
+# buildwords --- extracts and builds a list of Hawaiian words from an HTMl page
+
+file=$1
+
+grep "<td>.*</td>" $file | sed "s/<[^>]*>//g" | sed "s/\`/'/g" | tr -cs '[:graph:]' '[\n*]' | tr ',' '[\n*]'| sort -u | grep -v "[^PpKk'MmNnWwLlHhAaEeIiOoUu]" > hwords

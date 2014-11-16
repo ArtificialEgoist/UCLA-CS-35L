@@ -1,0 +1,60 @@
+nathantung@ubuntu:~/thttpd-2.25b$ ps aux | grep thttpd
+1000      2983  0.0  0.0   7096  1208 ?        Ss   23:45   0:00 ./thttpd -p 8080
+1000      3054  0.0  0.0   7972   908 pts/0    S+   23:46   0:00 grep --color=auto thttpd
+nathantung@ubuntu:~/thttpd-2.25b$ gdb
+GNU gdb (Ubuntu/Linaro 7.3-0ubuntu2) 7.3-2011.08
+Copyright (C) 2011 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.  Type "show copying"
+and "show warranty" for details.
+This GDB was configured as "x86_64-linux-gnu".
+For bug reporting instructions, please see:
+<http://bugs.launchpad.net/gdb-linaro/>.
+(gdb) attach 2983
+Attaching to process 2983
+Could not attach to process.  If your uid matches the uid of the target
+process, check the setting of /proc/sys/kernel/yama/ptrace_scope, or try
+again as the root user.  For more details, see /etc/sysctl.d/10-ptrace.conf
+ptrace: Operation not permitted.
+(gdb) sudo attach 2983
+Undefined command: "sudo".  Try "help".
+(gdb) quit
+nathantung@ubuntu:~/thttpd-2.25b$ sudo gdb
+at[sudo] password for nathantung: 
+Sorry, try again.
+[sudo] password for nathantung: 
+GNU gdb (Ubuntu/Linaro 7.3-0ubuntu2) 7.3-2011.08
+Copyright (C) 2011 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.  Type "show copying"
+and "show warranty" for details.
+This GDB was configured as "x86_64-linux-gnu".
+For bug reporting instructions, please see:
+<http://bugs.launchpad.net/gdb-linaro/>.
+(gdb) attach 2983
+Attaching to process 2983
+Reading symbols from /home/nathantung/thttpd-2.25b/thttpd...(no debugging symbols found)...done.
+Reading symbols from /lib/x86_64-linux-gnu/libcrypt.so.1...(no debugging symbols found)...done.
+Loaded symbols for /lib/x86_64-linux-gnu/libcrypt.so.1
+Reading symbols from /lib/x86_64-linux-gnu/libc.so.6...(no debugging symbols found)...done.
+Loaded symbols for /lib/x86_64-linux-gnu/libc.so.6
+Reading symbols from /lib64/ld-linux-x86-64.so.2...(no debugging symbols found)...done.
+Loaded symbols for /lib64/ld-linux-x86-64.so.2
+0x00007f40d138e438 in poll () from /lib/x86_64-linux-gnu/libc.so.6
+(gdb) c
+Continuing.
+
+Program received signal SIGABRT, Aborted.
+0x00007f40d12ed3a5 in raise () from /lib/x86_64-linux-gnu/libc.so.6
+(gdb) bt
+#0  0x00007f40d12ed3a5 in raise () from /lib/x86_64-linux-gnu/libc.so.6
+#1  0x00007f40d12f0b0b in abort () from /lib/x86_64-linux-gnu/libc.so.6
+#2  0x00007f40d1326d63 in ?? () from /lib/x86_64-linux-gnu/libc.so.6
+#3  0x00007f40d13b14f7 in __fortify_fail ()
+   from /lib/x86_64-linux-gnu/libc.so.6
+#4  0x00007f40d13b0410 in __chk_fail () from /lib/x86_64-linux-gnu/libc.so.6
+#5  0x00007f40d13b08c2 in __read_chk () from /lib/x86_64-linux-gnu/libc.so.6
+#6  0x0000000000403e57 in main ()
+

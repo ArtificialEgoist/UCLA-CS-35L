@@ -1,0 +1,31 @@
+2012-05-03    Nathan Tung    nathanctung@ucla.edu
+* Fix timespec_cmp() error in which certain times would overflow, causing older files to show up earlier in coreutils ls.
+===================================================================
+--- lib/timespec.h.old	2012-05-04 02:28:25.396177000 -0700
++++ lib/timespec.h	2012-05-04 02:28:30.224439000 -0700
+@@ -45,8 +45,23 @@
+ static inline int
+ timespec_cmp (struct timespec a, struct timespec b)
+ {
+-  int diff = a.tv_sec - b.tv_sec;
+-  return diff ? diff : a.tv_nsec - b.tv_nsec;
++  int cmp;
++  if(a.tv_sec < b.tv_sec)
++      cmp=-1; //arbitrary negative number
++  if(a.tv_sec > b.tv_sec)
++      cmp=1; //arbitrary positive number
++
++  if(cmp!=0)
++      return cmp;
++  else
++  {
++      if(a.tv_nsec < b.tv_nsec)
++          cmp=-1;
++      if(a.tv_nsec > b.tv_nsec)
++          cmp=1;
++      
++      return cmp; //if all comparisons are equal, returns 0
++  }
+ }
+ 
+ # if ! HAVE_DECL_NANOSLEEP

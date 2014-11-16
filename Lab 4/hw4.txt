@@ -1,0 +1,32 @@
+The homework starts with checking out the v3.0 of diffutils into a new branch, which we are to call "quote." We can use the command:
+	git branch quote
+It seems like git checkout -b quote also works. These commands cause us to switch to a new branch called "quote."
+
+Then we start patching, using this command and getting results like these:
+	patch < patch-3.0-patch.txt
+
+patching file NEWS
+patching file README
+patching file TODO
+patching file ms/config.bat
+Reversed (or previously applied) patch detected!  Assume -R? [n] y
+patching file ms/config.site
+Reversed (or previously applied) patch detected!  Assume -R? [n] y
+patching file po/en.po
+Reversed (or previously applied) patch detected!  Assume -R? [n] y
+patching file tests/help-version
+Reversed (or previously applied) patch detected!  Assume -R? [n] y
+
+I then copied the patch details (that is, date, author, and files affected)
+from the original quote-patch.txt into the ChangeLog-2008 file.
+
+To commit changes to the quote branch, use:
+	git commit -a
+
+It takes effect after I type in a brief description of the change made into
+the commit message. This allows me to generate the final formatted patch:
+	git format-patch master --stdout > formatted-patch.txt
+
+Finally, we just follow the instructions using git am (which applies a series
+of patches via mailbox) and make check to build up the system in the
+temporary branch. We can test it and see that it works as we intended.

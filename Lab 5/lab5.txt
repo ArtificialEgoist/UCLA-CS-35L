@@ -1,0 +1,33 @@
+After downloading the coreutils-with-bug and extracting it into a folder in the /tmp directory, I tried to configure and make it to reproduce the bug. The bugged coreutils had another bug, however, and it took the coreutils.diff patch to fix it. Without the patch, calling make would give an error with the tee.c file. It seems that the patch would rename it to avoid any conflicts and also provide an interface for setting file timestamps.
+
+I applied the patch to the /lib and /src folders in coreutils-with-bug, as
+specified in the .diff patch file.
+
+cd coreutils-with-bug
+./configure
+make
+
+After installing the bugged coreutils, the out-of-time-order glitch could then
+be reproduced. Finding the patch for that bug, however, will take more work.
+Having used gdb in CS33, I thought it would be rather straightforward.
+However, it was a little different and somewhat difficult to read. The
+debugger yielded information in sort_files() that pointed to timespec_cmp(), a
+function that is used to compare file times for sorting purposes. I decided
+to take a look around the coreutils files and found timespec.h in the lib
+folder.
+
+It seems that timespec is the culprit, since in comparing, it stores int
+variables that could essentially overflow, going from a
+positive-unrepresentable number to a negative one. (We actually learned about
+wrap-around in CS33 as well.)
+
+Now, instead of using those ints, if we could make them simple negative,
+zero, and positive variables, perhaps we could solve the time overflow bug!
+
+I fixed the overflow bug by using a series of if-conditionals, while returning
+a value that is distinctly negative, zero, or positive. Then I output the
+patch using the diff command inside the coreutils-with-bug folder:
+	diff -u lib/timespec.h.old lib/timespech. > lab5.diff
+
+Afterwards, I add the ChangeLog entry. The .diff file, when patched, should
+fix the coreutils bug!

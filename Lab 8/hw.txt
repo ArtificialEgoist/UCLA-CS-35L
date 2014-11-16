@@ -1,0 +1,47 @@
+The US-CERT website covers many different exploits or loopholes in programs
+that can cause a compromised system. They rate each vulnerability based on 
+severity metric, (a higher number) indicating how potentially dangerous it 
+is. However, while it is a useful guideline, the severity metric does not 
+by itself explain which vulnerabilities are more serious.
+
+I rank VU#945216 as the most serious vulnerability. A remote integer 
+overflow in SSH can allow an attacker to run arbitrary code, even sometimes 
+with root privileges. The attacker just has to use a hash table of zero size
+and it acts much like a buffer overflow attack. Victims can apply a patch or
+disable SSH1. Even though there is a fix, if the victim neglects to use it, 
+the attacker can run whatever he or she wants, potentially destroying the 
+person's computer.
+
+VU#316553 comes as a close second for me. Windows has a driver that is 
+responsible for graphics; this driver could be exploited to run arbitrary 
+code, compromising the entire system or adding/deleting programs, user 
+accounts, etc. Since Microsoft graphics are pretty common, this could be a 
+large threat. Users just have to apply a Microsoft update or block a DLL. 
+Like the first vulnerability, this attack grants the criminal nearly full
+control of the victim's computer, and the victim's system is at the 
+attacker's full mercy.
+
+Not to be overlooked is VU#864643, in which an attacker could act as an 
+interloper and decrypt sensitive info from in between a network session.
+Any passwords could be compromised; especially at risk are credit card 
+numbers, bank account numbers, passwords, identity information, etc. 
+The scariest part of this is that users can't actually do much, while the
+attacker could use the victim's info for spreading his attacks. There is 
+apparently no practical solution, but users can at the very least enable
+TLS 1.1 in their browser or server software.
+
+Likewise, VU#924307 can be a nuisance. Though granted a lower severity 
+meric, a D-Link router's wireless internet can become unsecured and
+unprotected during high traffic load. The attacker can then use the D-Link 
+router to sniff traffic or even attack from the router to target others. 
+This is where this vulnerability can become widespread, and the victims 
+could spread starting from just a single target. The worst part is that 
+there is no practical solution and not even any temporary fixes.
+
+Lastly, VU#659251 is a vulnerability where a remote attacker can crash the 
+KDC daemon via an assertion failure or a null pointer dereference. The user 
+also has patches available to cover up the vulnerability. However, even 
+without patching, the attacker is limited in action. He cannot permanently 
+damage the system, steal sensitive information, or the like. Therefore, in 
+comparison, this vulnerability is in my opinion a bit less severe than the 
+other ones.

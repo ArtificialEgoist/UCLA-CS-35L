@@ -1,0 +1,57 @@
+First, before doing anything, I made the .bashrc file (adding both the two lines in the lecture slides AND the two lines specified in CourseWeb) and run it as a source to set up git. Then I do all the basics: create the gitroot directory (mkdir gitroot) and grab a copy of the diffutils, as seen below.
+
+git clone git://git.savannah.gnu.org/diffutils.git
+
+And then we add a path to the working tree: git add .
+
+git log > git-log.txt
+git tag > git-tags.txt
+
+I recorded the log and tags via the commands above. The latter file shows that
+diffutils version actually goes up to v3.2, but we'll be dealing with 3.0 as
+the specs say.
+
+To find the name of the commit mentioned, I found that I could use grep
+inside the git log:
+	git log --grep="maint: quote 'like this'"
+This prints out the name and details of the specified commit. The name turns
+out to be quite a long string, as seen below:
+	git show 62ca21c8c1a5aa3488589dcb191a4ef04ae9ed4f > quote-patch.txt
+Now I have also obtained the patch file. I also checkout diffutils 3.0:
+	git checkout v3.0 -b lab4
+
+Actually using the patch file caused me some trouble. It looked like there
+were two options to use:
+	patch -p1 < quote-patch.txt
+	git apply quote-patch.txt
+The first one's p-option allows you to change how many layers the patch will
+be used. However, it didn't work on all the files; instead, it kept asking for
+a single file to patch each time. The second patch command worked for me, and
+its operation is essentially the same as the first.
+
+Reading the quote-patch.txt file showed that some files to be patched were
+found in the subfolders man, src, doc, ms, po, and tests. So I went into each
+subfolder and applied the patch to each one, using ../quote-patch.txt in order
+to apply the correct patch. The patching process resulted in many missing file
+errors, as well as trailing whitespace/whitespace errors. I outputted some of
+the file problems to a patch-fail.txt file for my own reference.
+
+git status tells us about both the modified and untracked files. We can use
+git revert to undo changes. For each of the non-c files, I used git checkout
+-- <file name> to remove them (NEWS, README, TODO, ms/config.bat,
+ms/config.site, po/en.po, tests/help-version).
+
+Analyzing the .c.rej files themselves shows that basically the only text that
+was rejected were the extra informative footnotes. Then we clean up the
+untracked directories and files, since we don't want those files in the patch:
+	git clean -f (the 'f' means to force all untracked to be removed)
+
+I used git diff to show the corresponding long patch, then saved it into
+quote-3.0-patch.txt. Then we build diffutils using these commands:
+	git submodule foreach git pull origin master
+	git commit -m 'build: update gnulib submodule'
+	./configure --quiet #[enable-gcc-warnings] [#]
+	make
+
+After the diffutils is built, diff functions will fix the single quote
+problem!

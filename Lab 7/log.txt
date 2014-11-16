@@ -1,0 +1,90 @@
+To start off this lab in Ubuntu, I first had to install openssh-server:
+	dpkg --get-selections | grep openssh
+	sudo apt-get install openssh-server
+The first command showed me that I only had the openssh-client, so I had to install the additional second package.
+
+Now it was time to setup my computer as a server. I used ifconfig to obtain my IP address (164.67.168.165), and my partner gave me his for later use (128.97.75.41). We were both able to ping each other's IP addresses accordingly. With that, I was ready to do the server setup. To begin, I followed the specs "server" instructions. 
+
+I created a set of private/public keys for the server, naming it key with the command ssh-keygen.
+
+Enter passphrase (empty for no passphrase): 
+Enter same passphrase again: 
+Your identification has been saved in key.
+Your public key has been saved in key.pub.
+The key fingerprint is:
+50:ab:75:8b:c8:66:a5:2c:4b:59:4e:45:ac:90:2f:8e nathantung@ubuntu
+The key's randomart image is:
++--[ RSA 2048]----+
+|     . o+        |
+|    o  o..       |
+|     o+.+ .      |
+|    .BoB o .     |
+|   o+.X S .      |
+|  E..=           |
+|    .            |
+|                 |
+|                 |
++-----------------+
+
+Then using the superuser, I added a /home/username directory and a user on my server for my lab partner, Arun, complete with the password:
+	sudo useradd -d /home/username -m arunj
+	sudo passwd arunj
+Then I created a directory .ssh in the /home/username folder and applied permissions for arunj:
+	cd /home/username
+	sudo mkdir .ssh
+	sudo chown -R arunj .ssh
+	sudo chmod 700 .ssh
+Finally, I use ssh-add to apply the key I made to ssh-agent.
+
+After setting up the server, it was time to act as the client. I could access the server already by entering the password setup for me each time.
+
+nathantung@ubuntu:~$ ssh nathant@128.97.75.41
+nathant@128.97.75.41's password: 
+Welcome to Ubuntu 12.04 LTS (GNU/Linux 3.2.0-24-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com/
+
+0 packages can be updated.
+0 updates are security updates.
+
+Last login: Thu May 17 20:28:12 2012 from 164.67.168.165
+
+I created another set of keys for the client, again named key, but this time in the nathantung/.ssh folder (using ssh-keygen command again). Since the ssh-copy-id didn't work properly, I settled with using the longer of the methods, Method 2. The key that I just created would be used to automate authentication into Arun's server. I used scp to copy that key into the server:
+
+nathantung@ubuntu:~/.ssh$ ssh-keygen
+Generating public/private rsa key pair.
+Enter file in which to save the key (/home/nathantung/.ssh/id_rsa): key
+Enter passphrase (empty for no passphrase): 
+Enter same passphrase again: 
+Your identification has been saved in key.
+Your public key has been saved in key.pub.
+The key fingerprint is:
+15:f5:1e:22:2d:6b:12:e2:10:60:66:14:47:25:37:06 nathantung@ubuntu
+The key's randomart image is:
++--[ RSA 2048]----+
+| .B+Eo=   ...    |
+| + . = .   o .   |
+|    . . . + o o  |
+|     o . o + o . |
+|      . S o   .  |
+|         o       |
+|                 |
+|                 |
+|                 |
++-----------------+
+
+nathantung@ubuntu:~/.ssh$ scp ~/.ssh/key.pub nathant@128.97.75.41:/home/username/.ssh
+nathant@128.97.75.41's password: 
+key.pub                                       100%  399     0.4KB/s   00:00    
+
+From there on, I just followed the specs again:
+	ssh nathant@128.97.75.41
+	cd .ssh
+	cat key.pub >> authorized_keys
+	ssh-agent /bin/bash
+	ssh-add
+All the commands above serve to go back into Arun's server, set up my keys as to automate my authorization in the future, then add that into ssh-agent. When we are finished, I use exit (or logout, apparently) to get back into my own computer.
+
+To test if I really setup my client-to-server access, I use:
+	ssh -X nathant@128.97.75.41
+And I am able to go in without a password! Success! So now I try to run a program using Arun's resources (using xterm). The terminal window opens on my desktop as a result, and I am able to utilize his server as intended.

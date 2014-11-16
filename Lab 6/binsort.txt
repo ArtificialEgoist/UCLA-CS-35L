@@ -1,0 +1,23 @@
+Having to change all the stdio.h getchar() and purchar() functions into read/write commands was not exactly a breeze, but after understanding how the system calls work, it was doable. Basically, the I/O stream is now all composed of read and write functions...except for fprintf, which the assignment 6 specs tells us to use for displaying the number of comparisons.
+
+Knowing that the original binsortu program uses buffered commands, where as this one doesn't, we can hypothesize that the program we just wrote will not work as efficiently. First, we'll run the test given on the assignment 5 specs. Notice that it's not even a file, but rather a string of bytes. From here on, we'll see how the two programs, binsortu and binsortuu, compare against each other.
+
+time printf '\x00CA\x00D\x00\x00B' | ./binsortu 2 | od -c
+0000000  \0   B  \0   C   A  \0   D  \0
+0000010
+real    0m0.012s
+user    0m0.000s
+sys     0m0.002s
+
+time printf '\x00CA\x00D\x00\x00B' | ./binsortuu 2 | od -c
+0000000  \0   B  \0   C   A  \0   D  \0
+0000010
+real    0m0.009s
+user    0m0.001s
+sys     0m0.001s
+
+This test is rather useless, as the time is so close together and the input so short that we cannot tell their efficiency apart. For our next test, we'll use the example given in assignment 5 specs, but pasted over and over as to increase the number of reading and comparisons done. The file consists of the chunks ABDB, BCCB, BDCC, CDDB, and DACC, each with a new-line byte after it. I called the file bintest1.txt.
+
+This resulted in a slight decrease in the time taken to run binsortu. However, due to the unbuffered performance of binsortuu, the latter ran for a much longer time in reading/writing. Upon further testing of MUCH larger files, I found that binsortu still ran relatively quickly, slowly down to several seconds. In contrast, binsortuu seemed like it was overflowing and would abort.
+
+In the lab and homework, it was interesting to see how buffered IO vs. unbuffered IO compared. However, in the end, the results were basically just as expected.

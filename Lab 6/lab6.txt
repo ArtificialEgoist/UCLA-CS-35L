@@ -1,0 +1,68 @@
+The first task we are given is to code the catb.c and catu.c programs. To do catb, I used a for loop without any conditions so that the code would continue to run until specifically broken. As long as we have not reached the end of file, or EOF, we fetch a character and then print it out.
+
+As for catu, I created a buffer for a single character, as is required by the
+read and write parameters. Passing in 0 and 1 for stdin and stdout, as well as
+the so-called "buffer" and a byte size of 1, enables the program to write as
+long as it reads something; that is, that read doesn't return a negative
+value.
+
+Then I had to create a text file that was large enough, or 5 MB according to
+the specs. I copied a very long arbitrary article found via Google and pasted
+it many times into a test.txt through vim. The final file turned out to be
+about 5.5 MB in size.
+
+Next came testing the strace function. I used the following commands:
+strace -o strace_outputb1 ./catb < test.txt
+strace -o strace_outputb2 ./catb < test.txtx > testb.txt
+
+The first one creates an strace file based on running catb to copy the file
+into the terminal. The second one generates an strace file based on copying
+the file into another file, bypassing the terminal. Therefore, we expect and
+know that the first command utilizes more system calls, printing out the input
+of test.txt in chunks to the terminal. After reading a certain amount of
+bytes, it reads more and copies it again, due to the terminal's limit. As I'm
+watching the terminal, I can see that it stops at certain places to load more
+characters. The second file copy, in contrast, reads and writes it in one
+breath, so it finishes a lot faster.
+
+I checked the file sizes of the strace files, using: du -s -h strace_outputb1,
+showing that strace_outputb1 is 2.1 MB. strace_outputb2 turns out to be
+significantly less, at 16 KB.
+
+Again, we repeat the process for catu, the unbuffered version. (By now, we
+know that read and write use system calls that don't utilize buffering.) We
+use the commands:
+strace -o strace_outputu1 ./catu < test.txt
+strace -o strace_outputu2 ./catu < test.txt > testu.txt
+
+Both strace_outputu1 and strace_outputu2 come out to be around 80 MB (85,103
+KB and 81,881 KB, respectively). I think this is because my lnxsrv disk maxed
+out and the file could grow no more. Simply looking at the sheer massive file
+size, we can tell that the unbuffered cat program is a lot less efficient than
+its buffered counterpart.
+
+Lastly, we use the time function to comparison the efficiency between catb and
+catu:
+time ./catb < test.txt
+	real    0m5.390s
+	user    0m0.251s
+	sys     0m0.094s
+time ./catb < test.txt > testb2.txt
+	real    0m0.270s
+	user    0m0.176s
+	sys     0m0.008s
+time ./catu < test.txt
+	real    0m40.671s
+	user    0m2.172s
+	sys     0m11.123s
+time ./catu < test.txt > testu2.txt
+	real    0m33.451s
+	user    0m1.980s
+	sys     0m9.554s
+In both file-content copying and terminal writing, the buffer version is far
+more efficient than the unbuffered one. And in both cases, the file-content
+copying is more efficient than the terminal writing as well. In the end, I
+found that buffer functions and programs (like the catb that we wrote) use RAM
+rather than the disk memory for faster run time. The functions getchar and
+putchar can take advantage of RAM and write to/read from it, resulting in
+faster performance than catu, which reads and writes the input individually.

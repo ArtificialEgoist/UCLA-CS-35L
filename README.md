@@ -1,4 +1,4 @@
 UCLA-CS-35L
 ===========
 
-CS 35L - Software Construction Laboratory (Spring 2012)
+Class materials (projects, sample exams, study guides, etc.) for UCLA computer science course, CS 35L
